@@ -14,8 +14,10 @@ int kbhit();
 // Déclaration des fonctions demandées
 void afficher(int x, int y, char c);
 void effacer(int x, int y);
-void dessinerSerpent(int position[TAILLE_TABLEAU][TAILLE_TABLEAU]);
-void progresser(int position[TAILLE_TABLEAU][TAILLE_TABLEAU]);
+void dessinerSerpent(int position[TAILLE_TABLEAU][2]);
+void progresser(int position[TAILLE_TABLEAU][2]);
+
+
 
 int main()
 {
