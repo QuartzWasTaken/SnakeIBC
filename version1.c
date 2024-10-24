@@ -13,6 +13,7 @@
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // Déclaration des constantes
 /**
@@ -28,17 +29,19 @@
  */
 #define TAILLE_SERPENT 10
 
+#define VITESSE_JEU 200000
+
 // Déclaration des fonctions fournies
 void gotoXY(int x, int y);
-int kbhit();
+int checkAKeyPress();
 
 // Déclaration des fonctions demandées
-void genererSerpent(int positions[TAILLE_SERPENT][2], int x, int y);
-void afficher(int x, int y, char c);
-void effacer(int x, int y);
-void dessinerSerpent(int positions[TAILLE_SERPENT][2]);
-void progresser(int positions[TAILLE_SERPENT][2]);
-void effacerEcran();
+void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y); // Check
+void afficher(int x, int y, char c); // Check
+void effacer(int x, int y); // Check
+void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]); // Check
+void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]); // Check
+void effacerEcran(); // Check
 
 
 /**
@@ -50,26 +53,42 @@ void effacerEcran();
 */
 int main()
 {
-	int positions[TAILLE_SERPENT][2];
+	int positionsX[TAILLE_SERPENT];
+	int positionsY[TAILLE_SERPENT];
+	bool devraitQuitter = false;
 	int x, y;
 
 	// Demander à l'utilisateur de rentrer la position initiale
 	printf("Entrez la position initiale de la tête du serpent (x, puis y): ");
 	scanf("%d", &x);
 	scanf("%d", &y);
-	effacerEcran();
+	x+=1;
 
-	genererSerpent(positions, x, y);
-	dessinerSerpent(positions);
+	effacerEcran(); // Préparer l'écran
+	genererSerpent(positionsX, positionsY, x, y);
 
-    return 0;
+	dessinerSerpent(positionsX, positionsY);
+	while(!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
+	{
+		usleep(VITESSE_JEU);
+		effacerEcran();
+		if(checkAKeyPress())
+		{
+			devraitQuitter = true;
+			printf("\n");
+		}
+		progresser(positionsX, positionsY);
+		dessinerSerpent(positionsX, positionsY);
+	}
+	
+    return 0; 
 }
 
 // Définition des fonctions fournies
 void gotoXY(int x, int y) { 
     printf("\033[%d;%df", y, x);
 }
-int kbhit(){
+int checkAKeyPress(){
 	// la fonction retourne :
 	// 1 si un caractere est present
 	// 0 si pas de caractere present
@@ -93,7 +112,7 @@ int kbhit(){
 	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 	fcntl(STDIN_FILENO, F_SETFL, oldf);
  
-	if(ch != EOF){
+	if(ch == 'A' || ch == 'a'){
 		ungetc(ch, stdin);
 		unCaractere=1;
 	} 
@@ -127,30 +146,37 @@ void effacerEcran()
  Cette fonction créé la liste des positions du serpent dans la liste en argument positions
 */
 
-void genererSerpent(int positions[TAILLE_SERPENT][2], int x, int y)
+void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
 {
-	int copiePos[TAILLE_SERPENT][2] = positions;
-	for(int nbCellule = 0; nbCellule < TAILLE_SERPENT; nbCellule++)
+	for(int nbCellule = 0; nbCellule < TAILLE_SERPENT; nbCellule++) // Génerer des coordonées de x à (x + TAILLE_SERPENT) pour le serpent
 	{
-		positions[nbCellule][0] = x - nbCellule; // positions[][I] 0 = X 1 = Y
-		positions[nbCellule][1] = y;
+		positionsX[nbCellule] = x + nbCellule;
+		positionsY[nbCellule] = y;
 	}
 }
 
-void dessinerSerpent(int positions[TAILLE_SERPENT][2])
+void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
-	for(int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++)
+	for(int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++) // Dessine le serpent dans l'ordre des cellules, un X pour le corps, un O pour la tête
 	{
-		int aDessinerX = positions[iDessine][0];
-		int aDessinerY = positions[iDessine][1];
+		int aDessinerX = positionsX[iDessine];
+		int aDessinerY = positionsY[iDessine];
 
-		if(iDessine == 0)
-		{
-			afficher(aDessinerX, aDessinerX, 'X');
-		}
-		else
+		if(iDessine == TAILLE_SERPENT-1)
 		{
 			afficher(aDessinerX, aDessinerY, 'O');
 		}
+		else
+		{
+			afficher(aDessinerX, aDessinerY, 'X');
+		}
+	}
+}
+
+void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
+{
+	for(int i = 0; i < TAILLE_SERPENT; i++) // Avancer chacune des cellules du serpent
+	{
+		positionsX[i]++;
 	}
 }
