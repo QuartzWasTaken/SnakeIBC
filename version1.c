@@ -57,17 +57,41 @@ int main()
 	int positionsY[TAILLE_SERPENT];
 	bool devraitQuitter = false;
 	int x, y;
-
-	// Demander à l'utilisateur de rentrer la position initiale
+	bool valValides = false;
+	
 	printf("Entrez la position initiale de la tête du serpent (x, puis y): ");
-	scanf("%d", &x);
-	scanf("%d", &y);
-	x+=1;
+	// Demander à l'utilisateur de rentrer la position initiale
+	while(!valValides)
+	{
+		scanf("%d", &x);
+		scanf("%d", &y);
+		if(x < 0)
+		{
+			printf("Le X ne peut pas être en dessous de 0 ! Rentrer de nouvelles valeurs : ");
+		}
+		else if(x > 40)
+		{
+			printf("X ne peut pas dépasser 40 ! Rentrer de nouvelles valeurs : ");
+		}
+		else if(y < 0)
+		{
+			printf("Le Y ne peut pas être en dessous de 0 ! Rentrer de nouvelles valeurs : ");
+		}
+		else if(y > 40)
+		{
+			printf("Le Y ne peut pas dépasser 40 ! Rentrer de nouvelles valeurs : ");
+		}
+		else
+		{
+			valValides = true;
+		}
+	}
 
 	effacerEcran(); // Préparer l'écran
 	genererSerpent(positionsX, positionsY, x, y);
 
 	dessinerSerpent(positionsX, positionsY);
+	
 	while(!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
 	{
 		usleep(VITESSE_JEU);
@@ -75,12 +99,11 @@ int main()
 		if(checkAKeyPress())
 		{
 			devraitQuitter = true;
-			printf("\n");
 		}
 		progresser(positionsX, positionsY);
 		dessinerSerpent(positionsX, positionsY);
 	}
-	
+	printf("\n");
     return 0; 
 }
 
@@ -150,7 +173,7 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 {
 	for(int nbCellule = 0; nbCellule < TAILLE_SERPENT; nbCellule++) // Génerer des coordonées de x à (x + TAILLE_SERPENT) pour le serpent
 	{
-		positionsX[nbCellule] = x + nbCellule;
+		positionsX[nbCellule] = x - nbCellule;
 		positionsY[nbCellule] = y;
 	}
 }
@@ -162,7 +185,7 @@ void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPE
 		int aDessinerX = positionsX[iDessine];
 		int aDessinerY = positionsY[iDessine];
 
-		if(iDessine == TAILLE_SERPENT-1)
+		if(iDessine == 0)
 		{
 			afficher(aDessinerX, aDessinerY, 'O');
 		}
