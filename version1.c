@@ -124,7 +124,7 @@ int checkAKeyPress(){
 	// mettre le terminal en mode non bloquant
 	tcgetattr(STDIN_FILENO, &oldt);
 	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO);
+	newt.c_lflag &= (tcflag_t)~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
 	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
@@ -171,12 +171,16 @@ void effacerEcran()
 
 void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
 {
-	for(int nbCellule = 0; nbCellule < TAILLE_SERPENT; nbCellule++) // Génerer des coordonées de x à (x + TAILLE_SERPENT) pour le serpent
-	{
-		positionsX[nbCellule] = x - nbCellule;
-		positionsY[nbCellule] = y;
-	}
+    for (int nbCellule = 0; nbCellule < TAILLE_SERPENT; nbCellule++) {
+        if (nbCellule < x) {
+            positionsX[nbCellule] = x - nbCellule; // Afficher tous les segments si nbCellule < x
+        } else {
+            positionsX[nbCellule] = -1; // Masquer les segments restants
+        }
+        positionsY[nbCellule] = y;
+    }
 }
+
 
 void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
@@ -198,8 +202,11 @@ void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPE
 
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
-	for(int i = 0; i < TAILLE_SERPENT; i++) // Avancer chacune des cellules du serpent
+	for(int i = TAILLE_SERPENT - 1; i > 0; i--) // Avancer chacune des cellules du serpent
 	{
-		positionsX[i]++;
+		positionsX[i] = positionsX[i - 1];
+		positionsY[i] = positionsY[i - 1];
 	}
+	// Avancer la tête du serpent (par exemple, vers la droite)
+	positionsX[0]++;
 }
