@@ -65,17 +65,17 @@ int main()
 	{
 		scanf("%d", &x);
 		scanf("%d", &y);
-		if(x < 0)
+		if(x <= 0)
 		{
-			printf("Le X ne peut pas être en dessous de 0 ! Rentrer de nouvelles valeurs : ");
+			printf("Le X ne peut pas être inférieur ou égal à 0 ! Rentrer de nouvelles valeurs : ");
 		}
 		else if(x > 40)
 		{
 			printf("X ne peut pas dépasser 40 ! Rentrer de nouvelles valeurs : ");
 		}
-		else if(y < 0)
+		else if(y <= 0)
 		{
-			printf("Le Y ne peut pas être en dessous de 0 ! Rentrer de nouvelles valeurs : ");
+			printf("Le Y ne peut pas être inférieur ou égal à 0 ! Rentrer de nouvelles valeurs : ");
 		}
 		else if(y > 40)
 		{
@@ -198,6 +198,7 @@ void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPE
 
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
+	/* \todo Changer ça pour que chaque cellule prenne les coordonnées de celle avant (-1) et faire avancer la tête */
 	for(int i = 0; i < TAILLE_SERPENT; i++) // Avancer chacune des cellules du serpent
 	{
 		positionsX[i]++;

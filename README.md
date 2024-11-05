@@ -8,7 +8,9 @@ Le projet consiste à développer un jeu de Snake en respectant les consignes fo
 
 ## Consignes
 
-Les consignes détaillées pour ce projet sont disponibles [ici](https://foad.univ-rennes.fr/pluginfile.php/2626575/mod_resource/content/1/Consignes%20Version%201.pdf).
+Les consignes détaillées pour la version 1 sont disponibles [ici](https://foad.univ-rennes.fr/pluginfile.php/2626575/mod_resource/content/1/Consignes%20Version%201.pdf).
+
+Les consignes détaillées pour la version 2 sont disponibles [ici](https://foad.univ-rennes.fr/pluginfile.php/2602892/mod_resource/content/8/Consignes%20Version%202.pdf).
 
 ## Installation
 
