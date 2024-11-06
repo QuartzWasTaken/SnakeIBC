@@ -62,7 +62,7 @@ int main()
 	int positionsX[TAILLE_SERPENT];
 	int positionsY[TAILLE_SERPENT];
 	int x, y;
-	char direction;
+	char direction = 'd';
 	bool devraitQuitter = false;
 
     x = 20;
@@ -75,7 +75,6 @@ int main()
     disableEcho();
 	while (!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
 	{
-        disableEcho();
 		usleep(VITESSE_JEU);
 		effacerEcran();
 		if (checkAKeyPress())
@@ -85,7 +84,6 @@ int main()
 		changerDirection(&direction);
 		progresser(positionsX, positionsY, direction);
 		dessinerSerpent(positionsX, positionsY);
-        enableEcho();
 	}
     enableEcho();
 	printf("\n");
@@ -104,21 +102,20 @@ void changerDirection(char* direction)
     if(kbhit())
     {
         ch = getchar();
-        printf("LE CHARCATERE CEST %c", ch);
     }
-	if (ch == 'D' || ch == 'd')
+	if (ch == 'd')
 	{
 		*direction = 'd';
 	}
-	if (ch == 'Z' || ch == 'z')
+	if (ch == 'z')
 	{
 		*direction = 'z';
 	}
-	if (ch == 'Q' || ch == 'q')
+	if (ch == 'q')
 	{
 		*direction = 'q';
 	}
-	if (ch == 'S' || ch == 's')
+	if (ch == 's')
 	{
 		*direction = 's';
 	}
@@ -126,35 +123,16 @@ void changerDirection(char* direction)
 
 int checkAKeyPress()
 {
-	// la fonction retourne :
-	// 1 si un caractere est present
-	// 0 si pas de caractere present
-
-	int unCaractere = 0;
-	struct termios oldt, newt;
-	int ch;
-	int oldf;
-
-	// mettre le terminal en mode non bloquant
-	tcgetattr(STDIN_FILENO, &oldt);
-	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO);
-	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-	ch = getchar();
-
-	// restaurer le mode du terminal
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-	fcntl(STDIN_FILENO, F_SETFL, oldf);
-
+	char ch;
+	if(kbhit())
+	{
+		ch = getchar();
+	}
 	if (ch == TOUCHE_ARRET)
 	{
-		ungetc(ch, stdin);
-		unCaractere = 1;
+		return true;
 	}
-	return unCaractere;
+	return false;
 }
 
 // Definition des fonctions demandées
@@ -170,41 +148,42 @@ void effacer(int x, int y)
 	printf(" ");
 }
 
-void disableEcho()
-{
-	struct termios tty;
+void disableEcho() {
+    struct termios tty;
 
-	// Obtenir les attributs du terminal
-	if (tcgetattr(STDIN_FILENO, &tty) == -1)
-	{
-		perror("tcgetattr");
-		exit(EXIT_FAILURE);
-	}
+    // Obtenir les attributs du terminal
+    if (tcgetattr(STDIN_FILENO, &tty) == -1) {
+        perror("tcgetattr");
+        exit(EXIT_FAILURE);
+    }
 
-	// Desactiver le flag ECHO
-	tty.c_lflag &= ~ECHO;
+    // Desactiver le flag ECHO
+    tty.c_lflag &= ~ECHO;
 
-	// Appliquer les nouvelles configurations
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1)
-	{
-		perror("tcsetattr");
-		exit(EXIT_FAILURE);
-	}
+    // Appliquer les nouvelles configurations
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
+        perror("tcsetattr");
+        exit(EXIT_FAILURE);
+    }
 }
 
-void enableEcho()
-{
-	struct termios tty;
+void enableEcho() {
+    struct termios tty;
 
-	// Obtenir les attributs du terminal
-	if (tcgetattr(STDIN_FILENO, &tty) == -1)
-	{
-		perror("tcgetattr");
-		exit(EXIT_FAILURE);
-	}
+    // Obtenir les attributs du terminal
+    if (tcgetattr(STDIN_FILENO, &tty) == -1) {
+        perror("tcgetattr");
+        exit(EXIT_FAILURE);
+    }
 
-	// Reactiver le flag ECHO
-	tty.c_lflag |= ECHO;
+    // Reactiver le flag ECHO
+    tty.c_lflag |= ECHO;
+
+    // Appliquer les nouvelles configurations
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
+        perror("tcsetattr");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void effacerEcran()
