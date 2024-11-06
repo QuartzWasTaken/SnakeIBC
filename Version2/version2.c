@@ -235,8 +235,21 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
 		positionsX[i] = positionsX[i - 1];
 		positionsY[i] = positionsY[i - 1];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 	}
-
-    positionsX[0]++;
+	switch (direction)
+    {
+        case 'd': // droite
+            positionsX[0]++;
+            break;
+        case 'z': // haut
+            positionsY[0]--;
+            break;
+        case 'q': // gauche
+            positionsX[0]--;
+            break;
+        case 's': // bas
+            positionsY[0]++;
+            break;
+    }
 }
 
 int kbhit(){
