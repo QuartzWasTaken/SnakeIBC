@@ -211,22 +211,27 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 
 void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
-	for (int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++) // Dessine le serpent dans l'ordre des cellules, un X pour le corps, un O pour la tête
-	{
-		int aDessinerX = positionsX[iDessine];
-		int aDessinerY = positionsY[iDessine];
+    for (int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++)
+    {
+        int aDessinerX = positionsX[iDessine];
+        int aDessinerY = positionsY[iDessine];
 
-		if (iDessine == 0)
-		{
-			afficher(aDessinerX, aDessinerY, TETE);
-		}
-		else
-		{
-			afficher(aDessinerX, aDessinerY, CORPS);
-		}
-	}
+        // Vérifier que les coordonnées sont dans les limites de l'écran
+        if (aDessinerX >= 0 && aDessinerX < TAILLE_TABLEAU && 
+            aDessinerY >= 0 && aDessinerY < TAILLE_TABLEAU)
+        {
+            // Dessiner la tête ou le corps en fonction de la position dans le tableau
+            if (iDessine == 0)
+            {
+                afficher(aDessinerX, aDessinerY, TETE);
+            }
+            else
+            {
+                afficher(aDessinerX, aDessinerY, CORPS);
+            }
+        }
+    }
 }
-
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
 {
 	/* \todo Changer ça pour que chaque cellule prenne les coordonnées de celle avant (-1) et faire avancer la tête */
