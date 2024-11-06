@@ -292,10 +292,11 @@ void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPE
 
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
 {
-		/* \todo Changer ça pour que chaque cellule prenne les coordonnées de celle avant (-1) et faire avancer la tête */
-		for (int i = 0; i < TAILLE_SERPENT; i++) // Avancer chacune des cellules du serpent
-		{
-			positionsX[i]++;
-		}
-
+	/* \todo Changer ça pour que chaque cellule prenne les coordonnées de celle avant (-1) et faire avancer la tête */
+	for (int i = TAILLE_SERPENT; i > 0; i--) // Avancer chacune des cellules du serpent
+	{
+		positionsX[i] = positionsX[i - 1];
+		positionsY[i] = positionsY[i - 1];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+	}
+	positionsX[0] = positionsX[0] + 1; 
 }
