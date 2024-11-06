@@ -30,13 +30,16 @@
 #define TAILLE_SERPENT 10
 
 #define VITESSE_JEU 200000
+#define TOUCHE_ARRET 'a'
 #define TETE 'O'
 #define CORPS 'X'
 // Déclaration des fonctions fournies
 void gotoXY(int x, int y);
+int kbhit();
 int checkAKeyPress();
 void enableEcho();
 void disableEcho();
+
 
 // Déclaration des fonctions demandées
 void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y); // Check
@@ -61,43 +64,18 @@ int main()
 	int x, y;
 	char direction;
 	bool devraitQuitter = false;
-	bool valValides = false;
 
-	printf("Entrez la position initiale de la tête du serpent (x, puis y): ");
-	// Demander à l'utilisateur de rentrer la position initiale
-	while (!valValides)
-	{
-		scanf("%d", &x);
-		scanf("%d", &y);
-		if (x <= 0)
-		{
-			printf("Le X ne peut pas être inférieur ou égal à 0 ! Rentrer de nouvelles valeurs : ");
-		}
-		else if (x > 40)
-		{
-			printf("X ne peut pas dépasser 40 ! Rentrer de nouvelles valeurs : ");
-		}
-		else if (y <= 0)
-		{
-			printf("Le Y ne peut pas être inférieur ou égal à 0 ! Rentrer de nouvelles valeurs : ");
-		}
-		else if (y > 40)
-		{
-			printf("Le Y ne peut pas dépasser 40 ! Rentrer de nouvelles valeurs : ");
-		}
-		else
-		{
-			valValides = true;
-		}
-	}
+    x = 20;
+    y = 20;
 
 	effacerEcran(); // Préparer l'écran
 	genererSerpent(positionsX, positionsY, x, y);
 
 	dessinerSerpent(positionsX, positionsY);
-
+    disableEcho();
 	while (!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
 	{
+        disableEcho();
 		usleep(VITESSE_JEU);
 		effacerEcran();
 		if (checkAKeyPress())
@@ -107,8 +85,11 @@ int main()
 		changerDirection(&direction);
 		progresser(positionsX, positionsY, direction);
 		dessinerSerpent(positionsX, positionsY);
+        enableEcho();
 	}
+    enableEcho();
 	printf("\n");
+
 	return 0;
 }
 // Définition des fonctions fournies
@@ -119,42 +100,26 @@ void gotoXY(int x, int y)
 
 void changerDirection(char* direction)
 {
-	struct termios oldt, newt;
-	int ch;
-	int oldf;
-
-	// mettre le terminal en mode non bloquant
-	tcgetattr(STDIN_FILENO, &oldt);
-	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO);
-	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-	ch = getchar();
-
-	// restaurer le mode du terminal
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-	fcntl(STDIN_FILENO, F_SETFL, oldf);
-
+    char ch;
+    if(kbhit())
+    {
+        ch = getchar();
+        printf("LE CHARCATERE CEST %c", ch);
+    }
 	if (ch == 'D' || ch == 'd')
 	{
-		ungetc(ch, stdin);
 		*direction = 'd';
 	}
 	if (ch == 'Z' || ch == 'z')
 	{
-		ungetc(ch, stdin);
 		*direction = 'z';
 	}
 	if (ch == 'Q' || ch == 'q')
 	{
-		ungetc(ch, stdin);
 		*direction = 'q';
 	}
 	if (ch == 'S' || ch == 's')
 	{
-		ungetc(ch, stdin);
 		*direction = 's';
 	}
 }
@@ -184,7 +149,7 @@ int checkAKeyPress()
 	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 	fcntl(STDIN_FILENO, F_SETFL, oldf);
 
-	if (ch == 'A' || ch == 'a')
+	if (ch == TOUCHE_ARRET)
 	{
 		ungetc(ch, stdin);
 		unCaractere = 1;
@@ -240,13 +205,6 @@ void enableEcho()
 
 	// Reactiver le flag ECHO
 	tty.c_lflag |= ECHO;
-
-	// Appliquer les nouvelles configurations
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1)
-	{
-		perror("tcsetattr");
-		exit(EXIT_FAILURE);
-	}
 }
 
 void effacerEcran()
@@ -298,5 +256,37 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
 		positionsX[i] = positionsX[i - 1];
 		positionsY[i] = positionsY[i - 1];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 	}
-	positionsX[0] = positionsX[0] + 1; 
+
+    positionsX[0]++;
+}
+
+int kbhit(){
+	// la fonction retourne :
+	// 1 si un caractere est present
+	// 0 si pas de caractere present
+	
+	int unCaractere=0;
+	struct termios oldt, newt;
+	int ch;
+	int oldf;
+
+	// mettre le terminal en mode non bloquant
+	tcgetattr(STDIN_FILENO, &oldt);
+	newt = oldt;
+	newt.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+ 
+	ch = getchar();
+
+	// restaurer le mode du terminal
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+	fcntl(STDIN_FILENO, F_SETFL, oldf);
+ 
+	if(ch != EOF){
+		ungetc(ch, stdin);
+		unCaractere=1;
+	} 
+	return unCaractere;
 }
