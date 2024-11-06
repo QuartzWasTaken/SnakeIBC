@@ -55,7 +55,7 @@ void changerDirection(char* direction);																		   // Check
  * \brief Programme principal.
  * \return Code de sortie du programme (0 : sortie normale).
  *
- * Le programme principal exécute le code donné
+ * Le programme principal exécute le code du jeu
  */
 int main()
 {
@@ -90,12 +90,24 @@ int main()
 
 	return 0;
 }
-// Définition des fonctions fournies
+
+/**
+ * \fn void gotoXY(int x, int y) 
+ * \brief Met le curseur aux coordonnées x et y
+ *
+ * Met le curseur aux coordonnées x et y passées en paramètre d'entrée
+ */
 void gotoXY(int x, int y)
 {
 	printf("\033[%d;%df", y, x);
 }
 
+/**
+ * \fn void changerDirection(char* direction)
+ * \brief Met le curseur aux coordonnées x et y
+ *
+ * Met le curseur aux coordonnées x et y passées en paramètre d'entrée
+ */
 void changerDirection(char* direction)
 {
     char ch;
@@ -103,24 +115,30 @@ void changerDirection(char* direction)
     {
         ch = getchar();
     }
-	if (ch == 'd')
+	if (ch == 'd' && *direction != 'q')
 	{
 		*direction = 'd';
 	}
-	if (ch == 'z')
+	if (ch == 'z' && *direction != 's')
 	{
 		*direction = 'z';
 	}
-	if (ch == 'q')
+	if (ch == 'q' && *direction != 'd')
 	{
 		*direction = 'q';
 	}
-	if (ch == 's')
+	if (ch == 's' && *direction != 'z')
 	{
 		*direction = 's';
 	}
 }
+/*!
+ \fn int checkAKeyPress()
+ \brief La fonction qui vérifie si la touche A est appuyée
+ \return true si la touche A est appuyée, false sinon
 
+ La fonction qui vérifie si A est appuyé, en utilisant kbhit
+*/
 int checkAKeyPress()
 {
 	char ch;
@@ -192,14 +210,15 @@ void effacerEcran()
 }
 
 /*!
- \fn void genererSerpent(int positions[TAILLE_SERPENT][2], int x, int y)
+ \fn void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
  \brief La fonction qui génère le serpent
- \param positions La liste des positions du serpent
- \param x La position X de la tête du serpent
- \param y La position Y de la tête du serpent
- Cette fonction créé la liste des positions du serpent dans la liste en argument positions
-*/
+ \param positionsX La liste des positionsX du serpent
+ \param positionsY La liste des positionsY du serpent
+ \param x Le X de la tête du serpent
+ \param y Le Y de la tête du serpent
 
+ Cette fonction créé la liste des positions (positionsX, positionsY) du serpent dans la liste en argument en utilisant x et y
+*/
 void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
 {
 	for (int nbCellule = 0; nbCellule < TAILLE_SERPENT; nbCellule++) // Génerer des coordonées de x à (x + TAILLE_SERPENT) pour le serpent
@@ -209,6 +228,15 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 	}
 }
 
+
+/*!
+ \fn void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
+ \brief La fonction qui dessine le serpent
+ \param positionsX La liste des positions X du serpent
+ \param positionsY La liste des positions Y du serpent
+
+ Cette fonction dessine le serpent en fonction des positions en argument générées par la fonction genererSerpent, en dessinant un O pour la tête et un X pour le corps
+*/
 void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
     for (int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++)
@@ -232,9 +260,18 @@ void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPE
         }
     }
 }
+
+/*!
+ \fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
+ \brief La fonction qui fait avancer le jeu d'une étape
+ \param positionsX La liste des positions X du serpent
+ \param positionsY La liste des positions Y du serpent
+ \param direction La direction dans laquelle le serpent avance
+
+ La fonction qui fait avancer le corps du serpent, puis bouge la tête dans la direction dans laquelle elle est sensée avancer
+*/
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
 {
-	/* \todo Changer ça pour que chaque cellule prenne les coordonnées de celle avant (-1) et faire avancer la tête */
 	for (int i = TAILLE_SERPENT; i > 0; i--) // Avancer chacune des cellules du serpent
 	{
 		positionsX[i] = positionsX[i - 1];
