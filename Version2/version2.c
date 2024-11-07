@@ -58,25 +58,43 @@
  * \def TOUCHE_DROITE
  * \brief La touche à appuyer pour aller vers la droite
  */
-#define TOUCHE_DROITE TOUCHE_DROITE
+#define TOUCHE_DROITE 'd'
 
 /**
  * \def TOUCHE_GAUCHE
  * \brief La touche à appuyer pour aller vers la gauche
  */
-#define TOUCHE_GAUCHE TOUCHE_GAUCHE
+#define TOUCHE_GAUCHE 'q'
 
 /**
  * \def TOUCHE_HAUT
  * \brief La touche à appuyer pour aller vers le haut
  */
-#define TOUCHE_HAUT TOUCHE_HAUT
+#define TOUCHE_HAUT 'z'
 
 /**
  * \def TOUCHE_BAS
  * \brief La touche à appuyer pour aller vers le bas
  */
-#define TOUCHE_BAS TOUCHE_BAS
+#define TOUCHE_BAS 's'
+
+/**
+ * \def X_DEBUT
+ * \brief La position horizontale à laquelle le serpent doit démarrer
+ */
+#define X_DEBUT 20
+
+/**
+ * \def Y_DEBUT
+ * \brief La position horizontale à laquelle le serpent doit démarrer
+ */
+#define Y_DEBUT 20
+
+/**
+ * \def DIRECTION_INITIALE
+ * \brief La direction dans laquelle le serpent doit se déplacer au début
+ */
+#define DIRECTION_INITIALE 'd'
 
 // Déclaration des fonctions fournies
 void gotoXY(int x, int y);
@@ -110,8 +128,8 @@ int main()
 	char direction = TOUCHE_DROITE;
 	bool devraitQuitter = false;
 
-    x = 20;
-    y = 20;
+    x = X_DEBUT;
+    y = Y_DEBUT;
 
 	effacerEcran(); // Préparer l'écran
 	genererSerpent(positionsX, positionsY, x, y);
@@ -133,7 +151,7 @@ int main()
     enableEcho();
 	printf("\n");
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 /**
@@ -191,7 +209,7 @@ int checkAKeyPress()
 	{
 		ch = getchar();
 	}
-	if (ch == TOUCHE_ARRET)
+	if (ch == TOUCHE_ARRET) // Si la touche détectée est celle d'arrêt, retourner true
 	{
 		return true;
 	}
