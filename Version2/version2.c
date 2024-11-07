@@ -1,3 +1,4 @@
+
 /*!
  \file
  \page Général
@@ -29,10 +30,54 @@
  */
 #define TAILLE_SERPENT 10
 
+/**
+ * \def VITESSE_JEU
+ * \brief La vitesse à laquelle le jeu va avancer (en microsecondes)
+ */
 #define VITESSE_JEU 200000
+
+/**
+ * \def TOUCHE_ARRET
+ * \brief La touche sur laquelle appuyer pour arrêter le jeu
+ */
 #define TOUCHE_ARRET 'a'
-#define TETE 'O'
-#define CORPS 'X'
+
+/**
+ * \def CHAR_TETE
+ * \brief Le caractère qui correspond à la tête du serpent
+ */
+#define CHAR_TETE 'O'
+
+/**
+ * \def CHAR_CORPS
+ * \brief Le caractère qui correspond au corps du serpent
+ */
+#define CHAR_CORPS 'X'
+
+/**
+ * \def TOUCHE_DROITE
+ * \brief La touche à appuyer pour aller vers la droite
+ */
+#define TOUCHE_DROITE TOUCHE_DROITE
+
+/**
+ * \def TOUCHE_GAUCHE
+ * \brief La touche à appuyer pour aller vers la gauche
+ */
+#define TOUCHE_GAUCHE TOUCHE_GAUCHE
+
+/**
+ * \def TOUCHE_HAUT
+ * \brief La touche à appuyer pour aller vers le haut
+ */
+#define TOUCHE_HAUT TOUCHE_HAUT
+
+/**
+ * \def TOUCHE_BAS
+ * \brief La touche à appuyer pour aller vers le bas
+ */
+#define TOUCHE_BAS TOUCHE_BAS
+
 // Déclaration des fonctions fournies
 void gotoXY(int x, int y);
 int kbhit();
@@ -62,7 +107,7 @@ int main()
 	int positionsX[TAILLE_SERPENT];
 	int positionsY[TAILLE_SERPENT];
 	int x, y;
-	char direction = 'd';
+	char direction = TOUCHE_DROITE;
 	bool devraitQuitter = false;
 
     x = 20;
@@ -115,21 +160,21 @@ void changerDirection(char* direction)
     {
         ch = getchar();
     }
-	if (ch == 'd' && *direction != 'q')
+	if (ch == TOUCHE_DROITE && *direction != TOUCHE_GAUCHE)
 	{
-		*direction = 'd';
+		*direction = TOUCHE_DROITE;
 	}
-	if (ch == 'z' && *direction != 's')
+	if (ch == TOUCHE_HAUT && *direction != TOUCHE_BAS)
 	{
-		*direction = 'z';
+		*direction = TOUCHE_HAUT;
 	}
-	if (ch == 'q' && *direction != 'd')
+	if (ch == TOUCHE_GAUCHE && *direction != TOUCHE_DROITE)
 	{
-		*direction = 'q';
+		*direction = TOUCHE_GAUCHE;
 	}
-	if (ch == 's' && *direction != 'z')
+	if (ch == TOUCHE_BAS && *direction != TOUCHE_HAUT)
 	{
-		*direction = 's';
+		*direction = TOUCHE_BAS;
 	}
 }
 /*!
@@ -251,11 +296,11 @@ void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPE
             // Dessiner la tête ou le corps en fonction de la position dans le tableau
             if (iDessine == 0)
             {
-                afficher(aDessinerX, aDessinerY, TETE);
+                afficher(aDessinerX, aDessinerY, CHAR_TETE);
             }
             else
             {
-                afficher(aDessinerX, aDessinerY, CORPS);
+                afficher(aDessinerX, aDessinerY, CHAR_CORPS);
             }
         }
     }
@@ -279,16 +324,16 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
 	}
 	switch (direction)
     {
-        case 'd': // droite
+        case TOUCHE_DROITE: // droite
             positionsX[0]++;
             break;
-        case 'z': // haut
+        case TOUCHE_HAUT: // haut
             positionsY[0]--;
             break;
-        case 'q': // gauche
+        case TOUCHE_GAUCHE: // gauche
             positionsX[0]--;
             break;
-        case 's': // bas
+        case TOUCHE_BAS: // bas
             positionsY[0]++;
             break;
     }
