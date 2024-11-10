@@ -57,12 +57,7 @@
 #define X_DEBUT 20
 #define Y_DEBUT 20
 
-#define DIR_DROITE 'd'
-#define DIR_GAUCHE 'q'
-#define DIR_HAUT 'z'
-#define DIR_BAS 's'
-
-
+#define DIRECTION_INITIALE 'd'
 /**
  * \def TOUCHE_DROITE
  * \brief La touche à appuyer pour aller vers la droite
@@ -134,11 +129,9 @@ int main()
 	int positionsX[TAILLE_SERPENT];
 	int positionsY[TAILLE_SERPENT];
 	int x, y;
-	char direction = DIR_DROITE;
+	char direction = DIRECTION_INITIALE;
 	bool devraitQuitter = false;
 
-    x = X_DEBUT;
-    y = Y_DEBUT;
     x = X_DEBUT;
     y = Y_DEBUT;
 
@@ -189,21 +182,21 @@ void changerDirection(char* direction)
     {
         ch = getchar();
     }
-	if (ch == DIR_DROITE && *direction != DIR_GAUCHE)
+	if (ch == TOUCHE_DROITE && *direction != TOUCHE_GAUCHE)
 	{
-		*direction = DIR_DROITE;
+		*direction = TOUCHE_DROITE;
 	}
-	if (ch == DIR_HAUT && *direction != DIR_BAS)
+	if (ch == TOUCHE_HAUT && *direction != TOUCHE_BAS)
 	{
-		*direction = DIR_HAUT;
+		*direction = TOUCHE_HAUT;
 	}
-	if (ch == DIR_GAUCHE && *direction != DIR_DROITE)
+	if (ch == TOUCHE_GAUCHE && *direction != TOUCHE_DROITE)
 	{
-		*direction = DIR_GAUCHE;
+		*direction = TOUCHE_GAUCHE;
 	}
-	if (ch == DIR_BAS && *direction != DIR_HAUT)
+	if (ch == TOUCHE_BAS && *direction != TOUCHE_HAUT)
 	{
-		*direction = DIR_BAS;
+		*direction = TOUCHE_BAS;
 	}
 }
 /*!
@@ -354,16 +347,16 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
 	}
 	switch (direction)
     {
-        case DIR_DROITE: // droite
+        case TOUCHE_DROITE: // droite
             positionsX[0]++;
             break;
-        case DIR_HAUT: // haut
+        case TOUCHE_HAUT: // haut
             positionsY[0]--;
             break;
-        case DIR_GAUCHE: // gauche
+        case TOUCHE_GAUCHE: // gauche
             positionsX[0]--;
             break;
-        case DIR_BAS: // bas
+        case TOUCHE_BAS: // bas
             positionsY[0]++;
             break;
     }
