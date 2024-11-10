@@ -54,6 +54,15 @@
  */
 #define CHAR_CORPS 'X'
 
+#define X_DEBUT 20
+#define Y_DEBUT 20
+
+#define DIR_DROITE 'd'
+#define DIR_GAUCHE 'q'
+#define DIR_HAUT 'z'
+#define DIR_BAS 's'
+
+
 /**
  * \def TOUCHE_DROITE
  * \brief La touche à appuyer pour aller vers la droite
@@ -125,9 +134,11 @@ int main()
 	int positionsX[TAILLE_SERPENT];
 	int positionsY[TAILLE_SERPENT];
 	int x, y;
-	char direction = TOUCHE_DROITE;
+	char direction = DIR_DROITE;
 	bool devraitQuitter = false;
 
+    x = X_DEBUT;
+    y = Y_DEBUT;
     x = X_DEBUT;
     y = Y_DEBUT;
 
@@ -178,21 +189,21 @@ void changerDirection(char* direction)
     {
         ch = getchar();
     }
-	if (ch == TOUCHE_DROITE && *direction != TOUCHE_GAUCHE)
+	if (ch == DIR_DROITE && *direction != DIR_GAUCHE)
 	{
-		*direction = TOUCHE_DROITE;
+		*direction = DIR_DROITE;
 	}
-	if (ch == TOUCHE_HAUT && *direction != TOUCHE_BAS)
+	if (ch == DIR_HAUT && *direction != DIR_BAS)
 	{
-		*direction = TOUCHE_HAUT;
+		*direction = DIR_HAUT;
 	}
-	if (ch == TOUCHE_GAUCHE && *direction != TOUCHE_DROITE)
+	if (ch == DIR_GAUCHE && *direction != DIR_DROITE)
 	{
-		*direction = TOUCHE_GAUCHE;
+		*direction = DIR_GAUCHE;
 	}
-	if (ch == TOUCHE_BAS && *direction != TOUCHE_HAUT)
+	if (ch == DIR_BAS && *direction != DIR_HAUT)
 	{
-		*direction = TOUCHE_BAS;
+		*direction = DIR_BAS;
 	}
 }
 /*!
@@ -223,6 +234,7 @@ void afficher(int x, int y, char c)
 	printf("%c", c);
 }
 
+// Efface l'écran
 void effacer(int x, int y)
 {
 	gotoXY(x, y);
@@ -342,16 +354,16 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
 	}
 	switch (direction)
     {
-        case TOUCHE_DROITE: // droite
+        case DIR_DROITE: // droite
             positionsX[0]++;
             break;
-        case TOUCHE_HAUT: // haut
+        case DIR_HAUT: // haut
             positionsY[0]--;
             break;
-        case TOUCHE_GAUCHE: // gauche
+        case DIR_GAUCHE: // gauche
             positionsX[0]--;
             break;
-        case TOUCHE_BAS: // bas
+        case DIR_BAS: // bas
             positionsY[0]++;
             break;
     }
