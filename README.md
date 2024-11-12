@@ -12,6 +12,8 @@ Les consignes détaillées pour la version 1 sont disponibles [ici](https://foad
 
 Les consignes détaillées pour la version 2 sont disponibles [ici](https://foad.univ-rennes.fr/pluginfile.php/2602892/mod_resource/content/8/Consignes%20Version%202.pdf).
 
+Les consignes détaillées pour la version 3 sont disponibles [ici](https://foad.univ-rennes.fr/mod/resource/view.php?id=909273).
+
 ## Installation
 
 1. Clonez le dépôt :

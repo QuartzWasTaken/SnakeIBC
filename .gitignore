@@ -5,5 +5,5 @@
 *.out
 *.o
 /docs
-test.c
+*test*
 .vscode
