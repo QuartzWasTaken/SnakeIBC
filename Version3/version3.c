@@ -1,12 +1,12 @@
 
 /*!
- \file
- \page Général
+\file
+\page Général
 
- \author GOURDON Gabriel
- \version 1.0
- \date 22 octobre 2024
- \brief Un snake pour la SAE 1.01
+\author GOURDON Gabriel
+\version 1.0
+\date 22 octobre 2024
+\brief Un snake pour la SAE 1.01
 **/
 
 #include <fcntl.h>
@@ -21,8 +21,8 @@
  * \def TAILLE_TABLEAU
  * \brief La taille du tableau dans lequel le serpent va évoluer
  */
-#define TAILLE_TABLEAU_X 40
-#define TAILLE_TABLEAU_Y 40
+#define TAILLE_TABLEAU_X 20 // FIXME
+#define TAILLE_TABLEAU_Y 20
 
 /**
  * \def TAILLE_SERPENT
@@ -55,9 +55,6 @@
  */
 #define CHAR_CORPS 'X'
 
-#define X_DEBUT 20
-#define Y_DEBUT 20
-
 #define DIRECTION_INITIALE 'd'
 /**
  * \def TOUCHE_DROITE
@@ -87,13 +84,13 @@
  * \def X_DEBUT
  * \brief La position horizontale à laquelle le serpent doit démarrer
  */
-#define X_DEBUT 20
+#define X_DEBUT 5
 
 /**
  * \def Y_DEBUT
  * \brief La position horizontale à laquelle le serpent doit démarrer
  */
-#define Y_DEBUT 20
+#define Y_DEBUT 5
 
 /**
  * \def DIRECTION_INITIALE
@@ -114,10 +111,10 @@ void effacerEcran();																				// Check
 
 int checkAKeyPress();
 void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y);	// Check
-void initTableau(char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y]);									// En cours
-void dessinerTableau(char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y]);								// En cours
+void initTableau(char tableau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X]);									// En cours
+void dessinerTableau(char tableau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X]);								// En cours
 void afficherSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);				// Check
-void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction);	// Check
+bool progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction);	// Check
 void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char tab[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X]);
 
 void changerDirection(char* direction);																// Check
@@ -137,17 +134,17 @@ int main()
 	char direction = DIRECTION_INITIALE;
 	bool devraitQuitter = false;
 
-	char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y];
+	char tableau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X];
 
-    x = X_DEBUT;
-    y = Y_DEBUT;
+	x = X_DEBUT;
+	y = Y_DEBUT;
 
 	effacerEcran(); // Préparer le jeu
 	genererSerpent(positionsX, positionsY, x, y);
 	initTableau(tableau);
 
 	dessinerTableau(tableau);
-    disableEcho();
+	disableEcho();
 	while (!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
 	{
 		usleep(VITESSE_JEU);
@@ -158,34 +155,43 @@ int main()
 			devraitQuitter = true;
 		}
 		changerDirection(&direction);
-		progresser(positionsX, positionsY, direction);
+		if(progresser(positionsX, positionsY, direction))
+		{
+			devraitQuitter = true;
+		}
+		
 		serpentDansTab(positionsX, positionsY, tableau);
 		dessinerTableau(tableau);
 	}
-    enableEcho();
+	enableEcho();
 	printf("\n");
 
 	return EXIT_SUCCESS;
 }
 
-void initTableau(char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y])
+void initTableau(char tableau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X])
 {
-	for (int i = 0; i < TAILLE_TABLEAU_X; i++)
+	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)  // Correction : boucle sur Y
 	{
-		for (int j = 0; j < TAILLE_TABLEAU_Y; j++)
+		for (int j = 0; j < TAILLE_TABLEAU_X; j++)  // Correction : boucle sur X
 		{
-			tableau[i][j] = ' ';
+			// Placer des bordures sur les bords du tableau
+            if (i == 1 || i == TAILLE_TABLEAU_Y - 1 || j == 1 || j == TAILLE_TABLEAU_X - 1) {
+                tableau[i][j] = '#';  // Bordure
+            } else {
+                tableau[i][j] = ' ';  // Espace vide à l'intérieur
+            }
 		}
 	}
 }
 
-void dessinerTableau(char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y])
+void dessinerTableau(char tableau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X])
 {
-	for (int i = 0; i < TAILLE_TABLEAU_X; i++)
+	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)  // Correction : boucle sur Y
 	{
-		for (int j = 0; j < TAILLE_TABLEAU_Y; j++)
+		for (int j = 0; j < TAILLE_TABLEAU_X; j++)  // Correction : boucle sur X
 		{
-			afficher(i, j, tableau[i][j]);
+			afficher(j, i, tableau[i][j]);  // Correction : ordre des indices
 		}
 	}
 }
@@ -198,11 +204,11 @@ void dessinerTableau(char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y])
  */
 void changerDirection(char* direction)
 {
-    char ch;
-    if(kbhit())
-    {
-        ch = getchar();
-    }
+	char ch;
+	if(kbhit())
+	{
+		ch = getchar();
+	}
 	if (ch == TOUCHE_DROITE && *direction != TOUCHE_GAUCHE)
 	{
 		*direction = TOUCHE_DROITE;
@@ -221,11 +227,11 @@ void changerDirection(char* direction)
 	}
 }
 /*!
- \fn int checkAKeyPress()
- \brief La fonction qui vérifie si la touche A est appuyée
- \return true si la touche A est appuyée, false sinon
+\fn int checkAKeyPress()
+\brief La fonction qui vérifie si la touche A est appuyée
+\return true si la touche A est appuyée, false sinon
 
- La fonction qui vérifie si A est appuyé, en utilisant kbhit
+La fonction qui vérifie si A est appuyé, en utilisant kbhit
 */
 int checkAKeyPress()
 {
@@ -257,41 +263,41 @@ void effacer(int x, int y, char tableau[TAILLE_TABLEAU_X][TAILLE_TABLEAU_Y])
 }
 
 void disableEcho() {
-    struct termios tty;
+	struct termios tty;
 
-    // Obtenir les attributs du terminal
-    if (tcgetattr(STDIN_FILENO, &tty) == -1) {
-        perror("tcgetattr");
-        exit(EXIT_FAILURE);
-    }
+	// Obtenir les attributs du terminal
+	if (tcgetattr(STDIN_FILENO, &tty) == -1) {
+		perror("tcgetattr");
+		exit(EXIT_FAILURE);
+	}
 
-    // Desactiver le flag ECHO
-    tty.c_lflag &= ~ECHO;
+	// Desactiver le flag ECHO
+	tty.c_lflag &= ~ECHO;
 
-    // Appliquer les nouvelles configurations
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
-        perror("tcsetattr");
-        exit(EXIT_FAILURE);
-    }
+	// Appliquer les nouvelles configurations
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
+		perror("tcsetattr");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void enableEcho() {
-    struct termios tty;
+	struct termios tty;
 
-    // Obtenir les attributs du terminal
-    if (tcgetattr(STDIN_FILENO, &tty) == -1) {
-        perror("tcgetattr");
-        exit(EXIT_FAILURE);
-    }
+	// Obtenir les attributs du terminal
+	if (tcgetattr(STDIN_FILENO, &tty) == -1) {
+		perror("tcgetattr");
+		exit(EXIT_FAILURE);
+	}
 
-    // Reactiver le flag ECHO
-    tty.c_lflag |= ECHO;
+	// Reactiver le flag ECHO
+	tty.c_lflag |= ECHO;
 
-    // Appliquer les nouvelles configurations
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
-        perror("tcsetattr");
-        exit(EXIT_FAILURE);
-    }
+	// Appliquer les nouvelles configurations
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
+		perror("tcsetattr");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void effacerEcran()
@@ -301,14 +307,14 @@ void effacerEcran()
 
 
 /*!
- \fn void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
- \brief La fonction qui génère le serpent
- \param positionsX La liste des positionsX du serpent
- \param positionsY La liste des positionsY du serpent
- \param x Le X de la tête du serpent
- \param y Le Y de la tête du serpent
+\fn void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
+\brief La fonction qui génère le serpent
+\param positionsX La liste des positionsX du serpent
+\param positionsY La liste des positionsY du serpent
+\param x Le X de la tête du serpent
+\param y Le Y de la tête du serpent
 
- Cette fonction créé la liste des positions (positionsX, positionsY) du serpent dans la liste en argument en utilisant x et y
+Cette fonction créé la liste des positions (positionsX, positionsY) du serpent dans la liste en argument en utilisant x et y
 */
 void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
 {
@@ -321,12 +327,12 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 
 
 /*!
- \fn void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
- \brief La fonction qui dessine le serpent
- \param positionsX La liste des positions X du serpent
- \param positionsY La liste des positions Y du serpent
+\fn void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
+\brief La fonction qui dessine le serpent
+\param positionsX La liste des positions X du serpent
+\param positionsY La liste des positions Y du serpent
 
- Cette fonction dessine le serpent en fonction des positions en argument générées par la fonction genererSerpent, en dessinant un O pour la tête et un X pour le corps
+Cette fonction dessine le serpent en fonction des positions en argument générées par la fonction genererSerpent, en dessinant un O pour la tête et un X pour le corps
 */
 // void dessinerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 // {
@@ -354,60 +360,85 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 
 void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char tableau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X])
 {
-    for (int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++)
-    {
-        int aDessinerX = positionsX[iDessine];
-        int aDessinerY = positionsY[iDessine];
+	for (int iDessine = 0; iDessine < TAILLE_SERPENT; iDessine++)
+	{
+		int aDessinerX = positionsX[iDessine];
+		int aDessinerY = positionsY[iDessine];
 
-        // Vérifier que les coordonnées sont dans les limites de l'écran
-        if (aDessinerX >= 0 && aDessinerX < TAILLE_TABLEAU_X &&
-            aDessinerY >= 0 && aDessinerY < TAILLE_TABLEAU_Y)
-        {
-            // Dessiner la tête ou le corps en fonction de la position dans le tableau
-            if (iDessine == 0)
-            {
-                tableau[aDessinerX][aDessinerY] = CHAR_TETE;
-            }
-            else
-            {
-                tableau[aDessinerX][aDessinerY] = CHAR_CORPS;
-            }
-        }
-    }
+		// Vérifier que les coordonnées sont dans les limites de l'écran
+		if (aDessinerX >= 0 && aDessinerX < TAILLE_TABLEAU_X &&
+			aDessinerY >= 0 && aDessinerY < TAILLE_TABLEAU_Y)
+		{
+			// Dessiner la tête ou le corps en fonction de la position dans le tableau
+			if (iDessine == 0)
+			{
+				tableau[aDessinerY][aDessinerX] = CHAR_TETE;
+			}
+			else
+			{
+				tableau[aDessinerY][aDessinerX] = CHAR_CORPS;
+			}
+		}
+	}
 }
 
-
 /*!
- \fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
- \brief La fonction qui fait avancer le jeu d'une étape
- \param positionsX La liste des positions X du serpent
- \param positionsY La liste des positions Y du serpent
- \param direction La direction dans laquelle le serpent avance
+\fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
+\brief La fonction qui fait avancer le jeu d'une étape
+\param positionsX La liste des positions X du serpent
+\param positionsY La liste des positions Y du serpent
+\param direction La direction dans laquelle le serpent avance
 
- La fonction qui fait avancer le corps du serpent, puis bouge la tête dans la direction dans laquelle elle est sensée avancer
+La fonction qui fait avancer le corps du serpent, puis bouge la tête dans la direction dans laquelle elle est sensée avancer
 */
-void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
+bool progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
 {
-	for (int i = TAILLE_SERPENT; i > 0; i--) // Avancer chacune des cellules du serpent
-	{
-		positionsX[i] = positionsX[i - 1];
-		positionsY[i] = positionsY[i - 1];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-	}
-	switch (direction)
-    {
-        case TOUCHE_DROITE: // droite
-            positionsX[0]++;
-            break;
-        case TOUCHE_HAUT: // haut
-            positionsY[0]--;
-            break;
-        case TOUCHE_GAUCHE: // gauche
-            positionsX[0]--;
-            break;
-        case TOUCHE_BAS: // bas
-            positionsY[0]++;
-            break;
+    int nouveauX = positionsX[0];
+    int nouveauY = positionsY[0];
+
+    // Calculer la nouvelle position de la tête en fonction de la direction
+    switch (direction) {
+        case TOUCHE_DROITE:
+			nouveauX++;
+			break;
+        case TOUCHE_HAUT:
+			nouveauY--;
+			break;
+        case TOUCHE_GAUCHE:
+			nouveauX--;
+			break;
+        case TOUCHE_BAS:
+			nouveauY++;
+			break;
     }
+
+    // Vérifier si la nouvelle position est en collision avec un '#'
+    if (nouveauX < 1 || nouveauX >= TAILLE_TABLEAU_X-1 || nouveauY < 1 || nouveauY >= TAILLE_TABLEAU_Y-1)
+	{
+        return true; // Collision avec la bordure
+    }
+
+    // Vérifier si la nouvelle position de la tête entre en collision avec le corps du serpent
+    for (int i = 1; i < TAILLE_SERPENT; i++)
+	{
+		if (positionsX[i] == nouveauX && positionsY[i] == nouveauY)
+		{
+            return true; // Collision avec le corps
+        }
+    }
+
+    // Déplacer le corps du serpent en décalant chaque segment vers la position du segment précédent
+    for (int i = TAILLE_SERPENT - 1; i > 0; i--)
+	{
+        positionsX[i] = positionsX[i - 1];
+        positionsY[i] = positionsY[i - 1];
+    }
+
+    // Mettre à jour la position de la tête
+    positionsX[0] = nouveauX;
+    positionsY[0] = nouveauY;
+
+    return false; // Pas de collision
 }
 
 int kbhit(){
@@ -427,13 +458,13 @@ int kbhit(){
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
 	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
- 
+
 	ch = getchar();
 
 	// restaurer le mode du terminal
 	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 	fcntl(STDIN_FILENO, F_SETFL, oldf);
- 
+
 	if(ch != EOF){
 		ungetc(ch, stdin);
 		unCaractere=1;
