@@ -189,7 +189,7 @@ int main()
     effacerEcran(); // Préparer le jeu
     genererSerpent(positionsX, positionsY, x, y);
     initTableau();
-
+	serpentDansTab(positionsX, positionsY);
     srand(time(NULL)); // Initialiser l'aléatoire
 
     genererPaves(positionsX, positionsY);
@@ -404,9 +404,9 @@ void genererUnPave(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPE
 		paveY = genererEntierDansBornes(2, TAILLE_TABLEAU_Y - 2); // entre le bord et le pavé, que le serpent puisse passer
 		paveValide = true;
 
-		for (int x = 0; x < TAILLE_PAVE_X; x++) // Vérifier que le pavé ne superpose rien
+		for (int x = -2; x < TAILLE_PAVE_X +1; x++) // Vérifier que le pavé ne superpose rien
 		{
-			for(int y = 0; y < TAILLE_PAVE_Y; y++)
+			for(int y = -2; y < TAILLE_PAVE_Y +1; y++)
 			{
 				if(tableau[paveY + y][paveX + x] != CHAR_VIDE)
 				{
