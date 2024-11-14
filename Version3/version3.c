@@ -102,13 +102,13 @@
  * \def X_DEBUT
  * \brief La position horizontale à laquelle le serpent doit démarrer
  */
-#define X_DEBUT 5
+#define X_DEBUT 40
 
 /**
  * \def Y_DEBUT
  * \brief La position horizontale à laquelle le serpent doit démarrer
  */
-#define Y_DEBUT 5
+#define Y_DEBUT 20
 
 /**
  * \def DIRECTION_INITIALE
@@ -138,6 +138,11 @@ typedef char t_plateau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X];
 
 // Déclaration des fonctions fournies
 void gotoXY(int x, int y);
+// Déclaration des fonctions demandées
+void afficher(int x, int y, char c);																// Check
+void effacer(int x, int y);																			// Check
+void effacerEcran();																				// Check
+
 int kbhit();
 void enableEcho();
 void disableEcho();
@@ -152,6 +157,7 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 void initTableau();									// En cours
 void dessinerTableau();								// En cours
 void afficherSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);				// Check
+void effacerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction, bool* detecCollision);	// Check
 void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 
@@ -180,40 +186,49 @@ int main()
 	x = X_DEBUT;
 	y = Y_DEBUT;
 
-	effacerEcran(); // Préparer le jeu
-	genererSerpent(positionsX, positionsY, x, y);
-	initTableau(tableau);
-	srand(time(NULL));
-	genererPaves(positionsX, positionsY);
-	dessinerTableau(tableau);
-	disableEcho();
-	while (!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
-	{
-		usleep(VITESSE_JEU);
-		effacerEcran();
-		initTableau(tableau);
-		if (checkAKeyPress())
-		{
-			devraitQuitter = true;
-		}
-		changerDirection(&direction);
-		serpentDansTab(positionsX, positionsY);
+    effacerEcran(); // Préparer le jeu
+    genererSerpent(positionsX, positionsY, x, y);
+    initTableau();
 
-		progresser(positionsX, positionsY, direction, &devraitQuitter);
+    srand(time(NULL)); // Initialiser l'aléatoire
 
-		dessinerTableau(tableau);
-	}
-	enableEcho();
-	printf("\n");
+    genererPaves(positionsX, positionsY);
 
-	return EXIT_SUCCESS;
+    dessinerTableau(); // Afficher le tableau de jeu initial
+    disableEcho();
+
+    while (!devraitQuitter) // Boucle du jeu
+    {
+        usleep(VITESSE_JEU);
+
+        if (checkAKeyPress())
+        {
+            devraitQuitter = true; // Si la touche d'arrêt est pressée, quitter
+        }
+
+        changerDirection(&direction); // Met à jour la direction du serpent
+
+        effacerSerpent(positionsX, positionsY); // Effacer le serpent avant de le déplacer
+		progresser(positionsX, positionsY, direction, &devraitQuitter); // Faire avancer le serpent
+
+        // Met à jour l'état du serpent dans le tableau
+        serpentDansTab(positionsX, positionsY); 
+
+        dessinerTableau(); // Redessiner le tableau de jeu avec le serpent mis à jour
+
+    }
+
+    enableEcho(); // Réactiver l'écho
+    printf("\n");
+
+    return EXIT_SUCCESS;
 }
 
 void initTableau()
 {
-	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)  // Correction : boucle sur Y
+	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)
 	{
-		for (int j = 0; j < TAILLE_TABLEAU_X; j++)  // Correction : boucle sur X
+		for (int j = 0; j < TAILLE_TABLEAU_X; j++)
 		{
 			// Placer des bordures sur les bords du tableau
             if (i == 1 || i == TAILLE_TABLEAU_Y - 1 || j == 1 || j == TAILLE_TABLEAU_X - 1) {
@@ -227,12 +242,21 @@ void initTableau()
 
 void dessinerTableau()
 {
-	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)  // Correction : boucle sur Y
+	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)
 	{
-		for (int j = 0; j < TAILLE_TABLEAU_X; j++)  // Correction : boucle sur X
+		for (int j = 0; j < TAILLE_TABLEAU_X; j++)
 		{
-			afficher(j, i, tableau[i][j]);  // Correction : ordre des indices
+			afficher(j, i, tableau[i][j]);
 		}
+	}
+}
+
+void effacerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
+{
+	for (int i = 0; i < TAILLE_SERPENT; i++)
+	{
+		tableau[positionsY[i]][positionsX[i]] = CHAR_VIDE;
+		afficher(positionsX[i], positionsY[i], CHAR_VIDE);
 	}
 }
 
