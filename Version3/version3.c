@@ -116,6 +116,24 @@
  */
 #define DIRECTION_INITIALE 'd'
 
+/**
+ * \def NOMBRE_PAVES
+ * \brief Le nombre de pavés à génerer
+ */
+#define NOMBRE_PAVES 4
+
+/**
+ * \def TAILLE_PAVE_X
+ * \brief La taille horizontale des pavés
+ */
+#define TAILLE_PAVE_X 5
+
+/**
+ * \def TAILLE_PAVE_Y
+ * \brief La taille verticale des pavés
+ */
+#define TAILLE_PAVE_Y 5
+
 typedef char t_plateau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X];
 
 // Déclaration des fonctions fournies
@@ -138,7 +156,9 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
 void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 
 void changerDirection(char* direction);																// Check
-void genererPaves();
+int genererEntierDansBornes(int min, int max);
+void genererPaves(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
+void genererUnPave(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 
 t_plateau tableau;
 
@@ -164,7 +184,7 @@ int main()
 	genererSerpent(positionsX, positionsY, x, y);
 	initTableau(tableau);
 	srand(time(NULL));
-
+	genererPaves(positionsX, positionsY);
 	dessinerTableau(tableau);
 	disableEcho();
 	while (!devraitQuitter) // Boucle du jeu, tester la touche d'arrêt, sinon, continuer
@@ -342,6 +362,45 @@ void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 		positionsY[nbCellule] = y;
 	}
 }
+void genererPaves(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPENT])
+{
+	for(int i = 0; i < NOMBRE_PAVES; i++)
+	{
+		genererUnPave(posSerpentX, posSerpentY);
+	}
+}
+
+void genererUnPave(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPENT])
+{
+	int paveX, paveY;
+	bool paveValide = false;
+	while (!paveValide)
+	{
+		paveX = genererEntierDansBornes(2, TAILLE_TABLEAU_X - 2); // -2 : un caractère de bord et un caractère pour l'espace
+		paveY = genererEntierDansBornes(2, TAILLE_TABLEAU_Y - 2); // entre le bord et le pavé, que le serpent puisse passer
+		paveValide = true;
+
+		for (int x = 0; x < TAILLE_PAVE_X; x++) // Vérifier que le pavé ne superpose rien
+		{
+			for(int y = 0; y < TAILLE_PAVE_Y; y++)
+			{
+				if(tableau[paveY + y][paveX + x] != CHAR_VIDE)
+				{
+					paveValide = false;
+				}
+			}
+		}
+	}
+
+	for (int x = 0; x < TAILLE_PAVE_X; x++) // Mettre le pavé validé dans le tableau
+	{
+		for(int y = 0; y < TAILLE_PAVE_Y; y++)
+		{
+			tableau[paveY + y][paveX + x] = CHAR_OBSTACLE;
+		}
+	}
+	
+}
 
 void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
 {
@@ -465,4 +524,9 @@ int kbhit(){
 void gotoXY(int x, int y)
 {
 	printf("\033[%d;%df", y, x);
+}
+
+int genererEntierDansBornes(int min, int max)
+{
+	return (rand() % (max - min + 1)) + min;
 }
