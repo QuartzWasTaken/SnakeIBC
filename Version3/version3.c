@@ -154,8 +154,8 @@ void effacerEcran();																				// Check
 
 int checkAKeyPress();
 void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y);	// Check
-void initTableau();									// En cours
-void dessinerTableau();								// En cours
+void initPlateau();									// En cours
+void dessinerPlateau();								// En cours
 void afficherSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);				// Check
 void effacerSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction, bool* detecCollision);	// Check
@@ -188,13 +188,13 @@ int main()
 
     effacerEcran(); // Préparer le jeu
     genererSerpent(positionsX, positionsY, x, y);
-    initTableau();
+    initPlateau();
 	serpentDansTab(positionsX, positionsY);
     srand(time(NULL)); // Initialiser l'aléatoire
 
     genererPaves(positionsX, positionsY);
 
-    dessinerTableau(); // Afficher le tableau de jeu initial
+    dessinerPlateau(); // Afficher le tableau de jeu initial
     disableEcho();
 
     while (!devraitQuitter) // Boucle du jeu
@@ -214,7 +214,7 @@ int main()
         // Met à jour l'état du serpent dans le tableau
         serpentDansTab(positionsX, positionsY); 
 
-        dessinerTableau(); // Redessiner le tableau de jeu avec le serpent mis à jour
+        dessinerPlateau(); // Redessiner le tableau de jeu avec le serpent mis à jour
 
     }
 
@@ -224,7 +224,14 @@ int main()
     return EXIT_SUCCESS;
 }
 
-void initTableau()
+/**
+ * \fn void initTableau()
+ * \brief Initialise le tableau de jeu
+ * \return Code de sortie du programme (0 : sortie normale).
+ *
+ * Le programme principal exécute le code du jeu
+ */
+void initPlateau()
 {
 	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)
 	{
@@ -240,7 +247,7 @@ void initTableau()
 	}
 }
 
-void dessinerTableau()
+void dessinerPlateau()
 {
 	for (int i = 0; i < TAILLE_TABLEAU_Y; i++)
 	{
@@ -501,7 +508,7 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
         positionsX[i] = positionsX[i - 1];
         positionsY[i] = positionsY[i - 1];
     }
-
+	
     // Mettre à jour la position de la tête
     positionsX[0] = nouveauX;
     positionsY[0] = nouveauY;
