@@ -69,6 +69,12 @@
 #define CHAR_VIDE ' '
 
 /**
+ * \def CHAR_VIDE
+ * \brief Le caractère qui correspond aux espaces vides dans lesquels le serpent peut aller
+ */
+#define CHAR_POMME '6'
+
+/**
  * \def DIRECTION_INITIALE
  * \brief La direction dans laquelle le serpent doit se déplacer au départ
  */
@@ -165,6 +171,7 @@ void changerDirection(char* direction);																// Check
 int genererEntierDansBornes(int min, int max);
 void genererPaves(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 void genererUnPave(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
+void ajouterPomme();
 
 t_plateau tableau;
 
@@ -193,7 +200,7 @@ int main()
     srand(time(NULL)); // Initialiser l'aléatoire
 
     genererPaves(positionsX, positionsY);
-
+	ajouterPomme();
     dessinerPlateau(); // Afficher le tableau de jeu initial
     disableEcho();
 
@@ -342,7 +349,8 @@ void effacer(int x, int y)
 	tableau[x][y] = CHAR_VIDE;
 }
 
-void disableEcho() {
+void disableEcho()
+{
 	struct termios tty;
 
 	// Obtenir les attributs du terminal
@@ -361,7 +369,8 @@ void disableEcho() {
 	}
 }
 
-void enableEcho() {
+void enableEcho()
+{
 	struct termios tty;
 
 	// Obtenir les attributs du terminal
@@ -384,6 +393,18 @@ void enableEcho() {
 void effacerEcran()
 {
 	system("clear");
+}
+
+void ajouterPomme()
+{
+	int x, y;
+	do
+	{
+		x = rand() % TAILLE_TABLEAU_X;
+		y = rand() % TAILLE_TABLEAU_Y;
+	} while (tableau[y][x] != CHAR_VIDE);
+	tableau[y][x] = CHAR_POMME;
+	afficher(x, y, CHAR_POMME);
 }
 
 
@@ -496,6 +517,7 @@ void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 	}
 }
 
+
 /*!
 \fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
 \brief La fonction qui fait avancer le jeu d'une étape
@@ -553,7 +575,8 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
     positionsY[0] = nouveauY;
 }
 
-int kbhit(){
+int kbhit()
+{
 	// la fonction retourne :
 	// 1 si un caractere est present
 	// 0 si pas de caractere present
@@ -584,7 +607,6 @@ int kbhit(){
 	return unCaractere;
 }
 
-
 /**
  * \fn void gotoXY(int x, int y) 
  * \brief Met le curseur aux coordonnées x et y
@@ -595,7 +617,6 @@ void gotoXY(int x, int y)
 {
 	printf("\033[%d;%df", y, x);
 }
-
 
 /*!
 \fn int genererEntierDansBornes(int min, int max)
