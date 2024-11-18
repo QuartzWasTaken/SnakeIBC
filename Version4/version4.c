@@ -171,6 +171,7 @@ void changerDirection(char* direction);																// Check
 int genererEntierDansBornes(int min, int max);
 void genererPaves(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
 void genererUnPave(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT]);
+void genererTrous();
 void ajouterPomme();
 
 t_plateau tableau;
@@ -196,6 +197,7 @@ int main()
     effacerEcran(); // Préparer le jeu
     genererSerpent(positionsX, positionsY, x, y);
     initPlateau();
+	genererTrous();
 	serpentDansTab(positionsX, positionsY);
     srand(time(NULL)); // Initialiser l'aléatoire
 
@@ -517,6 +519,14 @@ void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPEN
 	}
 }
 
+void genererTrous()
+{
+	tableau[1][TAILLE_TABLEAU_X / 2] = CHAR_VIDE;
+	tableau[TAILLE_TABLEAU_Y - 1][TAILLE_TABLEAU_X / 2] = CHAR_VIDE;
+
+	tableau[TAILLE_TABLEAU_Y / 2][1] = CHAR_VIDE;
+	tableau[TAILLE_TABLEAU_Y / 2][TAILLE_TABLEAU_X - 1] = CHAR_VIDE;
+}
 
 /*!
 \fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
@@ -546,7 +556,12 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
         case TOUCHE_BAS:
 			nouveauY++;
 			break;
+		default:
+			break;
     }
+
+	nouveauX %= TAILLE_TABLEAU_X; // Wrap les positions
+	nouveauY %= TAILLE_TABLEAU_Y;
 
     // Vérifier si la nouvelle position est en collision avec un '#'
     if (tableau[nouveauY][nouveauX] == CHAR_OBSTACLE)
@@ -554,6 +569,21 @@ void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], 
         *detecCollision = true; // Collision avec le bord
     }
 
+	if(nouveauX < 1 && direction == TOUCHE_GAUCHE && (nouveauY == TAILLE_TABLEAU_Y / 2))
+	{
+		nouveauX = TAILLE_TABLEAU_X - 1;
+	}
+
+	if(nouveauY < 1 && direction == TOUCHE_HAUT && (nouveauX == TAILLE_TABLEAU_X / 2))
+	{
+		nouveauY = TAILLE_TABLEAU_Y - 1;
+	}
+
+	// Vérifier si la nouvelle position est en collision avec une pomme
+	if (tableau[nouveauY][nouveauX] == CHAR_POMME)
+	{
+		ajouterPomme();
+	}
     // Vérifier si la nouvelle position de la tête entre en collision avec le corps du serpent
     for (int i = 1; i < TAILLE_SERPENT; i++)
 	{
