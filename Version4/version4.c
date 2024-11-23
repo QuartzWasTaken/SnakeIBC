@@ -1,12 +1,11 @@
-
 /*!
-\file
-\page Général
+ \file
+ \page Général
 
-\author GOURDON Gabriel
-\version 1.0
-\date 22 octobre 2024
-\brief Un snake pour la SAE 1.01
+ \author GOURDON Gabriel
+ \version 1.0
+ \date 22 octobre 2024
+ \brief Un snake pour la SAE 1.01
 **/
 
 #include <fcntl.h>
@@ -34,9 +33,9 @@
 
 /**
  * \def VITESSE_JEU
- * \brief La vitesse à laquelle le jeu va avancer (en microsecondes)
+ * \brief La vitesse à laquelle le jeu va avancer (en nanosecondes)
  */
-#define VITESSE_JEU 200000
+#define VITESSE_JEU_INITIALE 200000
 
 /**
  * \def TOUCHE_ARRET
@@ -140,13 +139,15 @@
  */
 #define TAILLE_PAVE_Y 5
 
-#define NB_POMMES_POUR_FIN 10
+#define TAILLE_MAX_SERPENT 20
 
-#define TAILLE_MAX_SERPENT 12
+#define ACCEL_SERPENT 15000
+
 typedef char t_plateau[TAILLE_TABLEAU_Y][TAILLE_TABLEAU_X];
 
 t_plateau tableau;
 int tailleSerpent = TAILLE_SERPENT;
+int vitesseJeu = VITESSE_JEU_INITIALE;
 
 
 // Déclaration des fonctions fournies
@@ -209,18 +210,19 @@ int main()
     effacerEcran(); // Préparer le jeu
     genererSerpent(positionsX, positionsY, x, y);
     initPlateau();
-	genererTrous(); 
+
 	serpentDansTab(positionsX, positionsY);
     srand(time(NULL)); // Initialiser l'aléatoire
 
     genererPaves(positionsX, positionsY);
-	ajouterPomme();
+
     dessinerPlateau(); // Afficher le tableau de jeu initial
+	ajouterPomme();
     disableEcho();
 
     while (!devraitQuitter) // Boucle du jeu
     {
-        usleep(VITESSE_JEU);
+        usleep(vitesseJeu);
 
 		aQuitte = checkAKeyPress(); // Si l'utilisateur veut quitter, mettre aQuitte = true
 		if(tailleSerpent >= TAILLE_MAX_SERPENT)
@@ -236,13 +238,13 @@ int main()
         changerDirection(&direction); // Met à jour la direction du serpent
 
         effacerSerpent(positionsX, positionsY); // Effacer le serpent avant de le déplacer
+
 		progresser(positionsX, positionsY, direction, &estMort); // Faire avancer le serpent
 
         // Met à jour l'état du serpent dans le tableau
-        serpentDansTab(positionsX, positionsY); 
+		serpentDansTab(positionsX, positionsY); 
 
         dessinerPlateau(); // Redessiner le tableau de jeu avec le serpent mis à jour
-
     }
 
     enableEcho(); // Réactiver l'écho
@@ -284,6 +286,7 @@ void initPlateau()
             }
 		}
 	}
+	genererTrous();
 }
 
 /**
@@ -348,11 +351,11 @@ void changerDirection(char* direction)
 	}
 }
 /*!
-\fn int checkAKeyPress()
-\brief La fonction qui vérifie si la touche A est appuyée
-\return true si la touche A est appuyée, false sinon
+ \fn int checkAKeyPress()
+ \brief La fonction qui vérifie si la touche A est appuyée
+ \return true si la touche A est appuyée, false sinon
 
-La fonction qui vérifie si A est appuyé, en utilisant kbhit
+ La fonction qui vérifie si A est appuyé, en utilisant kbhit
 */
 int checkAKeyPress()
 {
@@ -375,7 +378,7 @@ void afficher(int x, int y, char c)
 	printf("%c", c);
 }
 
-// Efface l'écran
+// Efface un caractère
 void effacer(int x, int y)
 {
 	tableau[x][y] = CHAR_VIDE;
@@ -427,28 +430,37 @@ void effacerEcran()
 	system("clear");
 }
 
+/*!
+ \fn void ajouterPomme()
+ \brief La fonction qui ajoute une pomme à un endroit aléatoire de l'écran
+
+ Génère deux coordonnées, et si le caractère de la case correspondante est CHAR_VIDE, ajoute une pomme et affiche le caractère CHAR_POMME, sinon, recommence
+*/
 void ajouterPomme()
 {
 	int x, y;
-	do
+	x = (rand() % TAILLE_TABLEAU_X - 2) + 2;
+	y = (rand() % TAILLE_TABLEAU_Y - 2) + 2;
+	while (tableau[y][x] != CHAR_VIDE)
 	{
-		x = (rand() % TAILLE_TABLEAU_X-1) + 1;
-		y = (rand() % TAILLE_TABLEAU_Y-1) + 1;
-	} while (tableau[y][x] != CHAR_VIDE);
+		x = (rand() % TAILLE_TABLEAU_X - 2) + 2;
+		y = (rand() % TAILLE_TABLEAU_Y - 2) + 2;
+	}
 	tableau[y][x] = CHAR_POMME;
 	afficher(x, y, CHAR_POMME);
+	fflush(stdout);
+
 }
 
-
 /*!
-\fn void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
-\brief La fonction qui génère le serpent
-\param positionsX La liste des positionsX du serpent
-\param positionsY La liste des positionsY du serpent
-\param x Le X de la tête du serpent
-\param y Le Y de la tête du serpent
+ \fn void genererSerpent(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], int x, int y)
+ \brief La fonction qui génère le serpent
+ \param positionsX La liste des positionsX du serpent
+ \param positionsY La liste des positionsY du serpent
+ \param x Le X de la tête du serpent
+ \param y Le Y de la tête du serpent
 
-Cette fonction créé la liste des positions (positionsX, positionsY) du serpent dans la liste en argument en utilisant x et y
+ Cette fonction créé la liste des positions (positionsX, positionsY) du serpent dans la liste en argument en utilisant x et y
 */
 void genererSerpent(int positionsX[TAILLE_MAX_SERPENT], int positionsY[TAILLE_MAX_SERPENT], int x, int y)
 {
@@ -459,12 +471,11 @@ void genererSerpent(int positionsX[TAILLE_MAX_SERPENT], int positionsY[TAILLE_MA
 	}
 }
 
-
 /*!
-\fn void genererPaves(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPENT])
-\brief La fonction qui génère les pavés
-\param positionsX La liste des positionsX du serpent
-\param positionsY La liste des positionsY du serpent
+ \fn void genererPaves(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPENT])
+ \brief La fonction qui génère les pavés
+ \param positionsX La liste des positionsX du serpent
+ \param positionsY La liste des positionsY du serpent
 
 Cette fonction créé NOMBRE_PAVES pavés en utilisant la fonction genererUnPave
 */
@@ -477,19 +488,19 @@ void genererPaves(int posSerpentX[TAILLE_MAX_SERPENT], int posSerpentY[TAILLE_MA
 }
 
 /*!
-\fn void genererPaves(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPENT])
-\brief La fonction qui génère un pavé
-\param positionsX La liste des positionsX du serpent
-\param positionsY La liste des positionsY du serpent
+ \fn void genererPaves(int posSerpentX[TAILLE_SERPENT], int posSerpentY[TAILLE_SERPENT])
+ \brief La fonction qui génère un pavé
+ \param positionsX La liste des positionsX du serpent
+ \param positionsY La liste des positionsY du serpent
 
 Cette fonction génère un pavé de dimensions TAILLE_PAVE_X et TAILLE_PAVE_Y en utilisant la fonction genererEntierDansBornes
 puis vérifie sa validité par rapport au serpent et aux bordures
 */
 void genererUnPave(int posSerpentX[TAILLE_MAX_SERPENT], int posSerpentY[TAILLE_MAX_SERPENT])
 {
-	int paveX, paveY; // Je sais que je vais perdre un point sur le fait que les pavés peuvent avoir la même position de départ, mais je sais pas comment régler ça
-	bool paveValide = false; // J'ai pas mal de trucs à faire pendant le weekend et je suis content de ce que j'ai fait jusque là, donc je rends comme ça
-	while (!paveValide) // Ces commentaires seront pas lus de toute manière donc je parle tout seul
+	int paveX, paveY;
+	bool paveValide = false;
+	while (!paveValide)
 	{
 		paveX = genererEntierDansBornes(2, TAILLE_TABLEAU_X - 2); // -2 : un caractère de bord et un caractère pour l'espace
 		paveY = genererEntierDansBornes(2, TAILLE_TABLEAU_Y - 2); // entre le bord et le pavé, que le serpent puisse passer
@@ -514,16 +525,15 @@ void genererUnPave(int posSerpentX[TAILLE_MAX_SERPENT], int posSerpentY[TAILLE_M
 			tableau[paveY + y][paveX + x] = CHAR_OBSTACLE;
 		}
 	}
-	
 }
 
 /*!
-\fn void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
-\brief La fonction qui met les positions du serpent dans le tableau de jeu
-\param positionsX La liste des positionsX du serpent
-\param positionsY La liste des positionsY du serpent
+ \fn void serpentDansTab(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT])
+ \brief La fonction qui met les positions du serpent dans le tableau de jeu
+ \param positionsX La liste des positionsX du serpent
+ \param positionsY La liste des positionsY du serpent
 
-Cette fonction transfère toutes les positions du serpent (positionsX et positionsY) dans le tableau de jeu
+ Cette fonction transfère toutes les positions du serpent (positionsX et positionsY) dans le tableau de jeu
 */
 void serpentDansTab(int positionsX[TAILLE_MAX_SERPENT], int positionsY[TAILLE_MAX_SERPENT])
 {
@@ -549,6 +559,12 @@ void serpentDansTab(int positionsX[TAILLE_MAX_SERPENT], int positionsY[TAILLE_MA
 	}
 }
 
+
+/*!
+ \fn void genererTrous()
+ \brief La fonction qui génère les trous dans les bords du plateau
+C
+*/
 void genererTrous()
 {
 	tableau[1][TAILLE_TABLEAU_X / 2] = CHAR_VIDE;
@@ -559,13 +575,13 @@ void genererTrous()
 }
 
 /*!
-\fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
-\brief La fonction qui fait avancer le jeu d'une étape
-\param positionsX La liste des positions X du serpent
-\param positionsY La liste des positions Y du serpent
-\param direction La direction dans laquelle le serpent avance
+ \fn void progresser(int positionsX[TAILLE_SERPENT], int positionsY[TAILLE_SERPENT], char direction)
+ \brief La fonction qui fait avancer le jeu d'une étape
+ \param positionsX La liste des positions X du serpent
+ \param positionsY La liste des positions Y du serpent
+ \param direction La direction dans laquelle le serpent avance
 
-La fonction qui fait avancer le corps du serpent, puis bouge la tête dans la direction dans laquelle elle est sensée avancer
+ La fonction qui fait avancer le corps du serpent, puis bouge la tête dans la direction dans laquelle elle est sensée avancer
 */
 void progresser(int positionsX[TAILLE_MAX_SERPENT], int positionsY[TAILLE_MAX_SERPENT], char direction, bool* detecCollision)
 {
@@ -615,6 +631,7 @@ void progresser(int positionsX[TAILLE_MAX_SERPENT], int positionsY[TAILLE_MAX_SE
         // Si le serpent a mangé une pomme, on augmente la taille du serpent, on rajoute une pomme et on met la cellule n-1
 		// du serpent à la valeur de n-2
 		tailleSerpent++; // Augmenter la taille du serpent
+		vitesseJeu -= ACCEL_SERPENT;
 		ajouterPomme(positionsX, positionsY);
 		positionsX[tailleSerpent - 1] = positionsX[tailleSerpent - 2];
 		positionsY[tailleSerpent - 1] = positionsY[tailleSerpent - 2];
@@ -674,18 +691,36 @@ int kbhit()
 	return unCaractere;
 }
 
+/*!
+ \fn void succesJeu()
+ \brief La fonction qui gère la fin du jeu quand l'utilisateur le gagne
+
+ Efface l'écran et dit bravo
+*/
 void succesJeu()
 {
 	system("clear");
 	printf("Vous avez gagné, bravo !\n");
 }
 
+/*!
+ \fn void echecJeu()
+ \brief La fonction qui gère la fin du jeu quand l'utilisateur le perd
+
+ Efface l'écran et dit dommage
+*/
 void echecJeu()
 {
 	system("clear");
 	printf("Vous avez perdu, dommage !\n");
 }
 
+/*!
+ \fn void quitterJeu()
+ \brief La fonction qui gère la fin du jeu quand l'utilisateur le quitte manuellement
+
+ Efface l'écran et dit au revoir
+*/
 void quitterJeu()
 {
 	system("clear");
@@ -706,10 +741,10 @@ void gotoXY(int x, int y)
 }
 
 /*!
-\fn int genererEntierDansBornes(int min, int max)
-\brief La fonction qui génère un entier de min à max
-\param min Le minimum de l'intervalle
-\param max Le maximum de l'intervalle
+ \fn int genererEntierDansBornes(int min, int max)
+ \brief La fonction qui génère un entier de min à max
+ \param min Le minimum de l'intervalle
+ \param max Le maximum de l'intervalle
 
 Retourne un entier aleatoire entre min et max
 */
